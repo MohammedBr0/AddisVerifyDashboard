@@ -16,9 +16,10 @@ This guide will help you deploy the AddisVerify dashboard application to Vercel,
    vercel login
    ```
 
-3. **Deploy from your project directory**:
+3. **Deploy from the root directory** (where the main vercel.json is located):
    ```bash
-   cd addisverify
+   # Navigate to the root directory (authService)
+   cd ..
    vercel
    ```
 
@@ -35,9 +36,10 @@ This guide will help you deploy the AddisVerify dashboard application to Vercel,
 4. **Import your GitHub repository**: `MohammedBr0/AddisVerifyDashboard`
 5. **Configure project settings**:
    - Framework Preset: Next.js
-   - Root Directory: `addisverify`
+   - Root Directory: `addisverify` ⭐ **IMPORTANT: Set this to `addisverify`**
    - Build Command: `npm run build`
    - Output Directory: `.next`
+   - Install Command: `npm install`
 6. **Click "Deploy"**
 
 ### Option 3: Deploy via Vercel Dashboard
@@ -74,12 +76,9 @@ NEXT_TELEMETRY_DISABLED=1
 
 ## 🔧 Configuration Details
 
-### Vercel Configuration (`vercel.json`)
-- **Framework**: Next.js with optimized build
-- **API Routes**: 30-second timeout for serverless functions
-- **Security Headers**: XSS protection, content type options
-- **CORS**: Configured for API routes
-- **Region**: Deployed to US East (iad1) for optimal performance
+### Vercel Configuration Files:
+- **Root `vercel.json`**: Specifies the `addisverify` subdirectory as the project root
+- **`addisverify/vercel.json`**: Contains security headers and environment variables
 
 ### Next.js Optimizations
 - **Image Optimization**: Enabled with Vercel's CDN
@@ -185,7 +184,7 @@ vercel dev
    vercel logs --build
    
    # Test build locally
-   npm run build
+   cd addisverify && npm run build
    ```
 
 2. **Environment Variables**:
