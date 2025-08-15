@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { toast } from '@/lib/toast';
 // @ts-ignore
 import QRCode from 'qrcode';
 
-export default function QRCodePage() {
+function QRCodeContent() {
   const searchParams = useSearchParams();
   const url = searchParams.get('url');
   const [copied, setCopied] = useState(false);
@@ -188,5 +188,13 @@ export default function QRCodePage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function QRCodePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <QRCodeContent />
+    </Suspense>
   );
 }

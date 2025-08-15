@@ -13,11 +13,6 @@ const nextConfig: NextConfig = {
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
-  // Experimental features for better performance
-  experimental: {
-    optimizeCss: true,
-    scrollRestoration: true,
-  },
   // Completely disable ESLint during builds
   eslint: {
     ignoreDuringBuilds: true,
