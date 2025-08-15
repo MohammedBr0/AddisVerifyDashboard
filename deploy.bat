@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM AddisVerify Google Cloud Deployment Script for Windows
+REM Adiss Verify Dashboard Google Cloud Deployment Script for Windows
 
 REM Configuration
 set PROJECT_ID=%PROJECT_ID%
@@ -9,10 +9,10 @@ if "%PROJECT_ID%"=="" set PROJECT_ID=your-project-id
 set REGION=%REGION%
 if "%REGION%"=="" set REGION=us-central1
 set SERVICE_NAME=%SERVICE_NAME%
-if "%SERVICE_NAME%"=="" set SERVICE_NAME=addisverify
+if "%SERVICE_NAME%"=="" set SERVICE_NAME=adiss-verify-dashboard
 set IMAGE_NAME=gcr.io/%PROJECT_ID%/%SERVICE_NAME%
 
-echo 🚀 Starting AddisVerify deployment to Google Cloud...
+echo 🚀 Starting Adiss Verify Dashboard deployment to Google Cloud...
 
 REM Check if gcloud is installed
 where gcloud >nul 2>nul

@@ -8,21 +8,40 @@ import { useAuthStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
 import { SidebarNavigation } from "@/components/layout/SidebarNavigation"
 import { SidebarUserProfile } from "@/components/layout/SidebarUserProfile"
+import type { NavigationItem } from "@/components/layout/SidebarNavigation"
 
 interface SidebarProps {
   sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
   isExpanded: boolean
   setIsExpanded: (expanded: boolean) => void
+  items?: NavigationItem[]
 }
 
-export function Sidebar({ sidebarOpen, setSidebarOpen, isExpanded, setIsExpanded }: SidebarProps) {
+export function Sidebar({ sidebarOpen, setSidebarOpen, isExpanded, setIsExpanded, items }: SidebarProps) {
   const { user, logout } = useAuthStore()
   const router = useRouter()
 
-  const handleLogout = () => {
-    logout()
-    router.push('/auth/login')
+  const handleLogout = async () => {
+    try {
+      // Call backend logout API
+      const token = localStorage.getItem('access_token')
+      if (token) {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'x-stack-access-token': token,
+            'Content-Type': 'application/json'
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Logout API call failed:', error)
+      // Continue with logout even if API call fails
+    } finally {
+      logout()
+      router.push('/auth/login')
+    }
   }
 
   return (
@@ -62,7 +81,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, isExpanded, setIsExpanded
         </div>
 
         {/* Navigation */}
-        <SidebarNavigation isExpanded={isExpanded} />
+        <SidebarNavigation isExpanded={isExpanded} items={items} />
 
         {/* User profile section */}
         <SidebarUserProfile user={user} onLogout={handleLogout} isExpanded={isExpanded} />

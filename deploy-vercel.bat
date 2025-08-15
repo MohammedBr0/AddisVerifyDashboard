@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-echo 🚀 Starting AddisVerify deployment to Vercel...
+echo 🚀 Starting Adiss Verify Dashboard deployment to Vercel...
 
 REM Check if Node.js is installed
 where node >nul 2>nul

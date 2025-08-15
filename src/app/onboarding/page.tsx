@@ -98,29 +98,35 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-slate-900">AD-DIS Verify</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-slate-600">Welcome, {user.name}</span>
-            <Button variant="outline" size="sm" onClick={logout}>
-              Sign Out
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <h1 className="text-xl font-semibold text-slate-900">AD-DIS Verify</h1>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={() => logout()}
+              className="text-slate-600 hover:text-slate-900"
+            >
+              Logout
             </Button>
           </div>
         </div>
       </header>
 
+      {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Building2 className="h-8 w-8 text-blue-600" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Complete Your Company Setup</h1>
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">Complete Your Company Setup</h2>
             <p className="text-slate-600">
-              To get started with AD-DIS Verify, we need some information about your company.
+              Please provide your company information to complete the registration process.
             </p>
           </div>
 
@@ -128,14 +134,14 @@ export default function OnboardingPage() {
             <CardHeader>
               <CardTitle className="text-xl">Company Information</CardTitle>
               <CardDescription>
-                Please provide your company details to complete the registration process.
+                Fill in your company details to complete the onboarding process
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-sm text-red-600">{error}</p>
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-600 text-sm">{error}</p>
                   </div>
                 )}
 
@@ -145,20 +151,17 @@ export default function OnboardingPage() {
                     <Input
                       id="legal_name"
                       name="legal_name"
-                      type="text"
-                      placeholder="Your Company Ltd."
                       required
-                      className="h-11"
+                      placeholder="Enter legal company name"
                     />
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="doing_business_as">DBA (Optional)</Label>
+                    <Label htmlFor="doing_business_as">Doing Business As (Optional)</Label>
                     <Input
                       id="doing_business_as"
                       name="doing_business_as"
-                      type="text"
-                      placeholder="Trading Name"
-                      className="h-11"
+                      placeholder="Enter DBA if different from legal name"
                     />
                   </div>
                 </div>
@@ -170,57 +173,52 @@ export default function OnboardingPage() {
                       id="company_email"
                       name="company_email"
                       type="email"
-                      placeholder="contact@company.com"
                       required
-                      className="h-11"
+                      placeholder="Enter company email"
                     />
                   </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="phone_number">Phone Number *</Label>
                     <Input
                       id="phone_number"
                       name="phone_number"
-                      type="tel"
-                      placeholder="+1 (555) 123-4567"
                       required
-                      className="h-11"
+                      placeholder="Enter phone number"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="country_of_registration">Country *</Label>
+                    <Label htmlFor="country_of_registration">Country of Registration *</Label>
                     <Input
                       id="country_of_registration"
                       name="country_of_registration"
-                      type="text"
-                      placeholder="United States"
                       required
-                      className="h-11"
+                      placeholder="Enter country"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="registration_date">Registration Date *</Label>
-                    <Input
-                      id="registration_date"
-                      name="registration_date"
-                      type="date"
-                      required
-                      className="h-11"
-                    />
-                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="registration_number">Registration Number *</Label>
                     <Input
                       id="registration_number"
                       name="registration_number"
-                      type="text"
-                      placeholder="123456789"
                       required
-                      className="h-11"
+                      placeholder="Enter registration number"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="registration_date">Registration Date *</Label>
+                  <Input
+                    id="registration_date"
+                    name="registration_date"
+                    type="date"
+                    required
+                  />
                 </div>
 
                 <div className="border-t pt-6">
@@ -231,71 +229,62 @@ export default function OnboardingPage() {
                       <Input
                         id="street"
                         name="street"
-                        type="text"
-                        placeholder="123 Main Street"
                         required
-                        className="h-11"
+                        placeholder="Enter street address"
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="city">City *</Label>
                       <Input
                         id="city"
                         name="city"
-                        type="text"
-                        placeholder="New York"
                         required
-                        className="h-11"
+                        placeholder="Enter city"
                       />
                     </div>
                   </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="state">State/Province *</Label>
                       <Input
                         id="state"
                         name="state"
-                        type="text"
-                        placeholder="NY"
                         required
-                        className="h-11"
+                        placeholder="Enter state/province"
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="country">Country *</Label>
                       <Input
                         id="country"
                         name="country"
-                        type="text"
-                        placeholder="United States"
                         required
-                        className="h-11"
+                        placeholder="Enter country"
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label htmlFor="postal_code">Postal Code *</Label>
                       <Input
                         id="postal_code"
                         name="postal_code"
-                        type="text"
-                        placeholder="10001"
                         required
-                        className="h-11"
+                        placeholder="Enter postal code"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-6">
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={() => router.push('/dashboard')}
+                <div className="flex justify-end pt-6">
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-8"
                   >
-                    Skip for Now
-                  </Button>
-                  <Button type="submit" className="h-11 px-8" disabled={isLoading}>
-                    {isLoading ? "Creating Company..." : "Complete Setup"}
+                    {isLoading ? "Creating..." : "Complete Setup"}
                   </Button>
                 </div>
               </form>
@@ -305,4 +294,4 @@ export default function OnboardingPage() {
       </div>
     </div>
   )
-} 
+}

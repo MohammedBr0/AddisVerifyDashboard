@@ -6,6 +6,7 @@ import { Plus, Bell, Search, Settings } from "lucide-react"
 import { useAuthStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
 import { authAPI, apiKeysAPI } from "@/lib/api"
+import { getOnboardingUrl } from "@/lib/utils/urlUtils"
 import { 
   DashboardStats, 
   RecentActivity, 
@@ -38,7 +39,7 @@ export default function DashboardPage() {
           const userData = profileResponse
           if (!userData.tenant) {
             // No tenant - redirect to onboarding
-            router.push('/onboarding')
+            router.push(getOnboardingUrl())
             return
           }
         }

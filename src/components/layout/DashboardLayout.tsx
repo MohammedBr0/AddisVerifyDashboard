@@ -3,14 +3,17 @@
 import { ReactNode, useState } from "react"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Header } from "@/components/layout/Header"
+import type { NavigationItem } from "@/components/layout/SidebarNavigation"
 
 interface DashboardLayoutProps {
   children: ReactNode
   sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
+  navItems?: NavigationItem[]
+  headerRightSlot?: ReactNode
 }
 
-export function DashboardLayout({ children, sidebarOpen, setSidebarOpen }: DashboardLayoutProps) {
+export function DashboardLayout({ children, sidebarOpen, setSidebarOpen, navItems, headerRightSlot }: DashboardLayoutProps) {
   const [isExpanded, setIsExpanded] = useState(true)
 
   return (
@@ -29,11 +32,13 @@ export function DashboardLayout({ children, sidebarOpen, setSidebarOpen }: Dashb
         setSidebarOpen={setSidebarOpen}
         isExpanded={isExpanded}
         setIsExpanded={setIsExpanded}
+        items={navItems}
       />
 
       {/* Header - Full width from left edge */}
       <Header 
         setSidebarOpen={setSidebarOpen}
+        rightSlot={headerRightSlot}
       />
 
       {/* Main content area */}

@@ -2,21 +2,20 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Shield, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react"
+import { Eye, EyeOff, ArrowLeft, Check, Globe, Users, Building, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { authAPI } from "@/lib/api"
 import { useAuthStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
+import { getOnboardingUrl } from "@/lib/utils/urlUtils"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [step, setStep] = useState(1)
   const { signIn } = useAuthStore()
   const router = useRouter()
 
@@ -31,10 +30,16 @@ export default function RegisterPage() {
     const confirmPassword = formData.get("confirmPassword") as string
     const firstName = formData.get("firstName") as string
     const lastName = formData.get("lastName") as string
-    const company = formData.get("company") as string
 
+    // Basic validation
     if (password !== confirmPassword) {
       setError("Passwords do not match")
+      setIsLoading(false)
+      return
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long")
       setIsLoading(false)
       return
     }
@@ -44,143 +49,148 @@ export default function RegisterPage() {
         email,
         password,
         firstname: firstName,
-        lastname: lastName,
-        username: email, // Use email as username
-        company_name: company || undefined,
+        lastname: lastName
       })
       
-      if (response.access_token) {
-        // Clear any existing tokens to ensure fresh login
-        localStorage.removeItem('access_token')
+      console.log('Sign-up response:', response)
+      
+      // After successful registration, sign in the user
+      try {
+        const signInResponse = await authAPI.signIn(email, password)
+        const accessToken = signInResponse.access_token
         
-        // Show success step
-        setStep(2)
+        if (accessToken) {
+          localStorage.setItem('access_token', accessToken)
+          
+          // Get user profile
+          try {
+            const profileResponse = await authAPI.getProfile()
+            const userData = profileResponse.data || profileResponse
+            const user = {
+              id: userData.user?.id || userData.id || 'unknown',
+              name: `${userData.user?.firstname || userData.firstname || ''} ${userData.user?.lastname || userData.lastname || ''}`,
+              email: userData.user?.email || userData.email || email,
+              role: userData.user?.role || userData.role || 'USER',
+              company: userData.tenant?.legal_name || '',
+              avatar: userData.stackAuth?.profile_image_url || '',
+              firstname: userData.user?.firstname || userData.firstname || '',
+              lastname: userData.user?.lastname || userData.lastname || ''
+            }
+            
+            signIn(user, accessToken)
+            
+            // SUPER ADMIN: redirect to admin dashboard
+            if (user.role === 'SUPER_ADMIN') {
+              router.push('/admin/dashboard')
+              return
+            }
+            
+            // Redirect to onboarding since new user won't have a tenant
+            router.push(getOnboardingUrl())
+          } catch (profileError: any) {
+            console.error('Profile fetch error:', profileError)
+            // Fallback user data
+            signIn({
+              id: 'unknown',
+              name: `${firstName} ${lastName}`,
+              email: email,
+              role: 'USER',
+              company: '',
+              avatar: '',
+              firstname: firstName,
+              lastname: lastName
+            }, accessToken)
+            router.push(getOnboardingUrl())
+          }
+        }
+      } catch (signInError: any) {
+        console.error('Auto sign-in error:', signInError)
+        // Registration successful but auto sign-in failed
+        setError('Registration successful! Please sign in with your new account.')
       }
     } catch (err: any) {
       console.error('Registration error:', err)
-      setError(err.response?.data?.message || 'Registration failed. Please try again.')
+      setError(err.message || 'Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  if (step === 2) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card className="border-0 shadow-xl">
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Account Created!</h2>
-              <p className="text-slate-600 mb-6">
-                Your account has been successfully created. Please sign in to access your dashboard.
-              </p>
-              <div className="space-y-3">
-                <Button 
-                  className="w-full" 
-                  onClick={() => router.push('/auth/login')}
-                >
-                  Sign In Now
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => router.push('/')}
-                >
-                  Back to Home
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex">
+      {/* Left Panel - Registration Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div className="w-full max-w-md">
+          {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center text-slate-600 hover:text-slate-900 mb-4">
+            <Link href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-slate-900">AD-DIS Verify</span>
+            
+            {/* Logo */}
+            <div className="flex items-center justify-center space-x-2 mb-6">
+              <div className="relative">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">A</span>
+                  <Check className="absolute -top-1 -right-1 h-4 w-4 text-white bg-green-500 rounded-full" />
+                </div>
+              </div>
+              <span className="text-2xl font-bold text-gray-900">AddisVerify</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
-          <p className="text-slate-600 mt-2">Join thousands of enterprises using AD-DIS Verify</p>
+            
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Create your account</h1>
+            <p className="text-gray-600">Join thousands of businesses using AddisVerify</p>
         </div>
 
-        <Card className="border-0 shadow-xl">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-xl">Sign Up</CardTitle>
-            <CardDescription>
-              Create your account to get started with AD-DIS Verify
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Registration Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-600">{error}</p>
                 </div>
               )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</Label>
                   <Input
                     id="firstName"
                     name="firstName"
                     type="text"
                     placeholder="John"
                     required
-                    className="h-11"
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
+              
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last Name</Label>
                   <Input
                     id="lastName"
                     name="lastName"
                     type="text"
                     placeholder="Doe"
                     required
-                    className="h-11"
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   placeholder="john@company.com"
                   required
-                  className="h-11"
+                className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="company">Company Name</Label>
-                <Input
-                  id="company"
-                  name="company"
-                  type="text"
-                  placeholder="Your Company Ltd."
-                  required
-                  className="h-11"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -188,20 +198,21 @@ export default function RegisterPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a strong password"
                     required
-                    className="h-11 pr-10"
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
+              <p className="text-xs text-gray-500">Must be at least 8 characters long</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Confirm Password</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
@@ -209,14 +220,14 @@ export default function RegisterPage() {
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
                     required
-                    className="h-11 pr-10"
+                  className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
@@ -226,35 +237,150 @@ export default function RegisterPage() {
                   type="checkbox"
                   id="terms"
                   required
-                  className="mt-1 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <Label htmlFor="terms" className="text-sm text-slate-600">
+              <Label htmlFor="terms" className="text-sm text-gray-600">
                   I agree to the{" "}
-                  <Link href="/terms" className="text-blue-600 hover:text-blue-700">
+                <Link href="/terms" className="text-blue-600 hover:text-blue-700 font-medium">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
+                <Link href="/privacy" className="text-blue-600 hover:text-blue-700 font-medium">
                     Privacy Policy
                   </Link>
                 </Label>
               </div>
 
-              <Button type="submit" className="w-full h-11" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg" 
+              disabled={isLoading}
+            >
                 {isLoading ? "Creating account..." : "Create Account"}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-slate-600">
+          {/* Divider */}
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">or</span>
+            </div>
+          </div>
+
+          {/* Social Registration Buttons */}
+          <div className="space-y-3">
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full h-12 border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="flex space-x-1">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <span>Continue with Google</span>
+              </div>
+            </Button>
+            
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full h-12 border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="grid grid-cols-2 gap-0.5">
+                  <div className="w-3 h-3 bg-red-500 rounded-sm"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
+                  <div className="w-3 h-3 bg-blue-500 rounded-sm"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-sm"></div>
+                </div>
+                <span>Continue with Microsoft</span>
+              </div>
+            </Button>
+          </div>
+
+          {/* Sign In Link */}
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-600">
                 Already have an account?{" "}
                 <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-medium">
                   Sign in
                 </Link>
               </p>
             </div>
-          </CardContent>
-        </Card>
+
+          {/* Copyright */}
+          <div className="mt-8 text-center">
+            <p className="text-xs text-gray-500">© All rights reserved</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Information */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gray-50 items-center justify-center p-12">
+        <div className="max-w-lg">
+          {/* Main Heading */}
+          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            Verify Individuals and Businesses{" "}
+            <span className="text-blue-600">Globally</span>
+          </h2>
+
+          {/* World Map Placeholder */}
+          <div className="mb-12">
+            <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+              <Globe className="h-16 w-16 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Statistics Grid */}
+          <div className="grid grid-cols-2 gap-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <BarChart3 className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-blue-600">100+</p>
+                <p className="text-sm text-gray-600">Data Sources</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Check className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-green-600">500M+</p>
+                <p className="text-sm text-gray-600">Verifiable Businesses</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Globe className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-purple-600">200</p>
+                <p className="text-sm text-gray-600">Countries Covered</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Users className="h-6 w-6 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-orange-600">5B+</p>
+                <p className="text-sm text-gray-600">Verifiable Users</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

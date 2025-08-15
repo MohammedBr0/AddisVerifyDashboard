@@ -5,9 +5,10 @@ import { Menu, Search, Bell } from "lucide-react"
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void
+  rightSlot?: React.ReactNode
 }
 
-export function Header({ setSidebarOpen }: HeaderProps) {
+export function Header({ setSidebarOpen, rightSlot }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-30 bg-white border-b border-slate-200 shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 lg:px-6">
@@ -23,6 +24,7 @@ export function Header({ setSidebarOpen }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
+          {rightSlot}
           <Button variant="outline" size="sm">
             <Search className="h-4 w-4" />
           </Button>

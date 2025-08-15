@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# AddisVerify Vercel Deployment Script
+# Adiss Verify Dashboard Vercel Deployment Script
 
 set -e
 
-echo "🚀 Starting AddisVerify deployment to Vercel..."
+echo "🚀 Starting Adiss Verify Dashboard deployment to Vercel..."
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then

@@ -12,7 +12,7 @@ interface User {
 
 interface SidebarUserProfileProps {
   user: User | null
-  onLogout: () => void
+  onLogout: () => Promise<void>
   isExpanded: boolean
 }
 
@@ -49,7 +49,7 @@ export function SidebarUserProfile({ user, onLogout, isExpanded }: SidebarUserPr
         <Button
           variant="ghost"
           size="sm"
-          onClick={onLogout}
+          onClick={async () => await onLogout()}
           className="text-slate-500 hover:text-slate-700 flex-shrink-0"
           title={!isExpanded ? "Logout" : undefined}
         >

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { ToastContainer } from "@/components/ui/toast"
 import { useAuthInitialization } from "@/hooks/useAuthInitialization"
+import { tenantsAPI } from "@/lib/api"
 
 export default function AuthenticatedLayout({
   children,
@@ -12,6 +13,7 @@ export default function AuthenticatedLayout({
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true)
   const { isInitialized, isAuthenticated, user, isLoading } = useAuthInitialization()
   const router = useRouter()
 
@@ -22,8 +24,31 @@ export default function AuthenticatedLayout({
     }
   }, [isInitialized, isAuthenticated, router])
 
-  // Show loading while initializing authentication
-  if (!isInitialized || isLoading) {
+  useEffect(() => {
+    // Check if user has completed onboarding
+    const checkOnboardingStatus = async () => {
+      if (isInitialized && isAuthenticated && user) {
+        try {
+          await tenantsAPI.getTenant()
+          // If successful, user has completed onboarding
+          setIsCheckingOnboarding(false)
+        } catch (error: any) {
+          // If 404 or other error, user hasn't completed onboarding
+          if (error.response?.status === 404 || error.response?.status === 403) {
+            router.push('/onboarding')
+            return
+          }
+          // For other errors, still allow access to dashboard
+          setIsCheckingOnboarding(false)
+        }
+      }
+    }
+
+    checkOnboardingStatus()
+  }, [isInitialized, isAuthenticated, user, router])
+
+  // Show loading while initializing authentication or checking onboarding
+  if (!isInitialized || isLoading || isCheckingOnboarding) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">

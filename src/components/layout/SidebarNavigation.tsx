@@ -2,10 +2,17 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, BarChart3, Users, UserCheck, Key, CreditCard, Database, Zap, Webhook, FileText, FileCheck } from "lucide-react"
+import { Home, BarChart3, Users, UserCheck, Key, CreditCard, Database, Zap, Webhook, FileText, FileCheck, LucideIcon } from "lucide-react"
 import { useAuthStore } from "@/lib/store"
 
-const navigationItems = [
+export type NavigationItem = {
+  name: string
+  icon: LucideIcon
+  href: string
+  requiresAuth?: boolean
+}
+
+const defaultNavigationItems: NavigationItem[] = [
   { name: "Dashboard", icon: Home, href: "/dashboard" },
   { name: "Analytics", icon: BarChart3, href: "/analytics" },
   { name: "Users", icon: Users, href: "/users", requiresAuth: true },
@@ -21,15 +28,18 @@ const navigationItems = [
 
 interface SidebarNavigationProps {
   isExpanded: boolean
+  items?: NavigationItem[]
 }
 
-export function SidebarNavigation({ isExpanded }: SidebarNavigationProps) {
+export function SidebarNavigation({ isExpanded, items }: SidebarNavigationProps) {
   const pathname = usePathname()
   const { user } = useAuthStore()
 
-  // Filter navigation items based on user permissions
-  const filteredNavigationItems = navigationItems.filter(item => {
-    if (item.requiresAuth) {
+  const sourceItems = items && items.length > 0 ? items : defaultNavigationItems
+
+  // Filter navigation items based on user permissions (tenant defaults only)
+  const filteredNavigationItems = sourceItems.filter(item => {
+    if (!items && item.requiresAuth) {
       // Users link requires either TENANT_ADMIN or USER role
       if (item.name === "Users") {
         return user?.role === 'TENANT_ADMIN' || user?.role === 'USER'

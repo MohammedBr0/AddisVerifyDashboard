@@ -1,6 +1,6 @@
-# AddisVerify Google Cloud Deployment Guide
+# Adiss Verify Dashboard - Google Cloud Deployment Guide
 
-This guide will help you deploy the AddisVerify dashboard application to Google Cloud Platform using Docker and Cloud Run.
+This guide will help you deploy the Adiss Verify Dashboard application to Google Cloud Platform using Docker and Cloud Run.
 
 ## Prerequisites
 

@@ -79,7 +79,29 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       },
 
       logout: () => {
+        // Clear all authentication data
         localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+        sessionStorage.clear()
+        
+        // Clear any other stored data
+        if (typeof window !== 'undefined') {
+          // Clear any other localStorage items that might be related to auth
+          const keysToRemove = []
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i)
+            if (key && (key.includes('auth') || key.includes('token') || key.includes('session'))) {
+              keysToRemove.push(key)
+            }
+          }
+          keysToRemove.forEach(key => localStorage.removeItem(key))
+          
+          // Clear any cookies that might be related to auth
+          document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+          });
+        }
+        
         set({
           user: null,
           isAuthenticated: false,

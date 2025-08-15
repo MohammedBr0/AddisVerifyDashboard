@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# AddisVerify Google Cloud Deployment Script
+# Adiss Verify Dashboard Google Cloud Deployment Script
 
 set -e
 
 # Configuration
 PROJECT_ID=${PROJECT_ID:-"your-project-id"}
 REGION=${REGION:-"us-central1"}
-SERVICE_NAME=${SERVICE_NAME:-"addisverify"}
+SERVICE_NAME=${SERVICE_NAME:-"adiss-verify-dashboard"}
 IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
 
-echo "🚀 Starting AddisVerify deployment to Google Cloud..."
+echo "🚀 Starting Adiss Verify Dashboard deployment to Google Cloud..."
 
 # Check if gcloud is installed
 if ! command -v gcloud &> /dev/null; then

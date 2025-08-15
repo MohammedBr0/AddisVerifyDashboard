@@ -1,6 +1,6 @@
-# GitHub Actions + Vercel Deployment Setup
+# Adiss Verify Dashboard - GitHub Actions + Vercel Deployment Setup
 
-This guide will help you set up automatic deployment to Vercel using GitHub Actions.
+This guide will help you set up automatic deployment to Vercel using GitHub Actions for the Adiss Verify Dashboard.
 
 ## 🚀 Quick Setup
 

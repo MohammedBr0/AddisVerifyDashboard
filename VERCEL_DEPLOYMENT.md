@@ -1,6 +1,6 @@
-# AddisVerify Vercel Deployment Guide
+# Adiss Verify Dashboard - Vercel Deployment Guide
 
-This guide will help you deploy the AddisVerify dashboard application to Vercel, which provides optimized hosting for Next.js applications.
+This guide will help you deploy the Adiss Verify Dashboard application to Vercel, which provides optimized hosting for Next.js applications.
 
 ## 🚀 Quick Deployment
 
