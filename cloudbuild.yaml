@@ -1,0 +1,32 @@
+# Cloud Build pipeline for addisverify (Next.js)
+# Builds and pushes an image to Artifact Registry.
+
+options:
+  substitutionOption: ALLOW_LOOSE
+
+substitutions:
+  _REGION: "us-central1"
+  _REPOSITORY: "addis-reg"
+  _IMAGE: "addisverify"
+
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build image'
+    args:
+      [
+        'build',
+        '-t',
+        '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_IMAGE:$SHORT_SHA',
+        '.'
+      ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push image'
+    args:
+      [
+        'push',
+        '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_IMAGE:$SHORT_SHA'
+      ]
+
+images:
+  - '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_IMAGE:$SHORT_SHA'

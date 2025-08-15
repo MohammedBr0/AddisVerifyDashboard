@@ -1,0 +1,9 @@
+export { default as ModernKYCFlow } from './ModernKYCFlow';
+export { default as KYCWelcome } from './KYCWelcome';
+export { default as IDTypeSelection } from './IDTypeSelection';
+export { default as IDScan } from './IDScan';
+export { default as OCRDataPreview } from './OCRDataPreview';
+export { default as SelfieCapture } from './SelfieCapture';
+export { default as ReviewAndConfirm } from './ReviewAndConfirm';
+export { default as ProcessingAnimation } from './ProcessingAnimation';
+export { default as ResultScreen } from './ResultScreen';
