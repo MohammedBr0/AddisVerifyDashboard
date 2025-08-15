@@ -150,3 +150,4 @@ Comprehensive tests have been added in `src/lib/utils/__tests__/ocrDataUtils.tes
 
 ### Debug Mode
 Enable debug logging by setting `NODE_ENV=development` to see detailed OCR processing information.
+
