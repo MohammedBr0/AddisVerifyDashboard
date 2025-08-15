@@ -1,27 +1,6 @@
 {
   "version": 2,
   "name": "addisverify",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
-  "env": {
-    "NEXT_TELEMETRY_DISABLED": "1"
-  },
-  "functions": {
-    "src/app/api/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
-  "regions": ["iad1"],
   "headers": [
     {
       "source": "/(.*)",
@@ -61,5 +40,8 @@
         }
       ]
     }
-  ]
+  ],
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  }
 }
