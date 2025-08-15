@@ -2,7 +2,8 @@
 # Builds and pushes an image to Artifact Registry.
 
 options:
-  substitutionOption: ALLOW_LOOSE
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
 
 substitutions:
   _REGION: "us-central1"
@@ -10,23 +11,42 @@ substitutions:
   _IMAGE: "addisverify"
 
 steps:
+  # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'Build image'
-    args:
-      [
-        'build',
-        '-t',
-        '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_IMAGE:$SHORT_SHA',
-        '.'
-      ]
-
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/addisverify:$COMMIT_SHA', '.']
+  
+  # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'Push image'
+    args: ['push', 'gcr.io/$PROJECT_ID/addisverify:$COMMIT_SHA']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
     args:
-      [
-        'push',
-        '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_IMAGE:$SHORT_SHA'
-      ]
+      - 'run'
+      - 'deploy'
+      - 'addisverify'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/addisverify:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--memory'
+      - '1Gi'
+      - '--cpu'
+      - '1'
+      - '--max-instances'
+      - '10'
+      - '--min-instances'
+      - '0'
+      - '--timeout'
+      - '300'
+      - '--concurrency'
+      - '80'
 
 images:
-  - '$_REGION-docker.pkg.dev/$PROJECT_ID/$_REPOSITORY/$_IMAGE:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/addisverify:$COMMIT_SHA'
