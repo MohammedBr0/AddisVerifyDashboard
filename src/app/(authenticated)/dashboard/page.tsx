@@ -34,8 +34,8 @@ export default function DashboardPage() {
         setError(null)
         // Check if user has a tenant
         const profileResponse = await authAPI.getProfile()
-        if (profileResponse.success && profileResponse.data) {
-          const userData = profileResponse.data
+        if (profileResponse && profileResponse.tenant) {
+          const userData = profileResponse
           if (!userData.tenant) {
             // No tenant - redirect to onboarding
             router.push('/onboarding')
